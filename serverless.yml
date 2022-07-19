@@ -1,0 +1,41 @@
+service: localstack-demo
+frameworkVersion: "3"
+
+plugins:
+  - serverless-localstack
+
+useDotenv: true
+
+custom:
+  localstack:
+    stages:
+      - local
+    host: http://localhost
+    edgePort: 4566
+    autostart: false
+    lambda:
+      mountCode: False
+    docker:
+      sudo: False
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  timeout: 180
+  environment:
+    APP_ENV: ${opt:stage, 'dev'}
+    MONGO_URL: ${param:MONGO_URL, env:MONGO_URL}
+    INPUT_BUCKET: ${param:INPUT_BUCKET, env:INPUT_BUCKET}
+    OUTPUT_BUCKET: ${param:OUTPUT_BUCKET, env:OUTPUT_BUCKET}
+    IMAGE_INPUT_QUEUE: ${param:IMAGE_INPUT_QUEUE, env:IMAGE_INPUT_QUEUE}
+    AWS_KEY_ID: ${param:AWS_KEY_ID, env:AWS_KEY_ID}
+    AWS_SECRET_ID: ${param:AWS_SECRET_ID, env:AWS_SECRET_ID}
+    AWS_EDGE_URL: ${env:AWS_EDGE_URL, ''}
+    AWS_REGION: ${opt:region, 'us-east-1'}
+    NODE_ENV: ${param:NODE_ENV, env:NODE_ENV}
+
+functions:
+  start:
+    handler: src/lambdas/inputHandler.handler
